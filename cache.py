@@ -14,7 +14,7 @@ HTTPDATE_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
 
 
 def httpdate_to_datetime(input_date):
-    # type (str) -> datetime
+    # type (str) -> Union[None, datetime]
     if input_date is None:
         return None
     try:
@@ -26,7 +26,7 @@ def httpdate_to_datetime(input_date):
 
 
 def datetime_to_httpdate(input_date):
-    # type (datetime) -> str
+    # type (datetime) -> Union[None, str]
     if input_date is None:
         return None
     try:
@@ -56,7 +56,6 @@ class Blob(object):
 
     def __conform__(self, protocol):
         if protocol is sqlite3.PrepareProtocol:
-            # return cpickle.dumps(self.data, 1)
             return sqlite3.Binary(cpickle.dumps(self.data, -1))
 
     @staticmethod
@@ -77,7 +76,7 @@ class Cache(object):
             self._open(name)
 
     def get(self, uri):
-        # type: (str) -> Union[dict, None]
+        # type: (str) -> Union[None, dict]
         """Retrieve a partial entry from the cache"""
         query = ("select blob, last_modified, etag, immutable, "
                  "case"
@@ -168,6 +167,7 @@ class Cache(object):
         return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
     def _execute(self, query, values=None):
+        # type (str, tuple) -> Union[None, sqlite3.Cursor]
         if values is None:
             values = ()
         try:
@@ -175,7 +175,7 @@ class Cache(object):
             with self.connection:
                 return self.connection.execute(query, values)
         except (sqlite3.IntegrityError, sqlite3.OperationalError) as e:
-            logger.warn(e.message)
+            print(e.message)
             return
 
     def _open(self, name):
@@ -187,7 +187,7 @@ class Cache(object):
                                               timeout=1,
                                               detect_types=sqlite3.PARSE_DECLTYPES)
         except sqlite3.Error as e:
-            logger.warn(e.message)
+            print(e.message)
             return
         # see: https://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.row_factory
         self.connection.row_factory = sqlite3.Row
