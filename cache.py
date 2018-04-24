@@ -2,6 +2,7 @@
 
 import sqlite3
 import time
+import errno
 from datetime import datetime, timedelta, tzinfo
 from os import path, makedirs
 
