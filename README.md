@@ -10,7 +10,8 @@ Simple Python HTTP Cache using sqlite3
 Primarily designed for use with Kodi plugins but generic enough for most 
 purposes.
 
-Can be used as a generic key/blob data store that without directives.
+Can be used as a generic key/blob data store when used without directives.
 
 https://docs.python.org/2/library/sqlite3.html
+
 https://tools.ietf.org/html/rfc7234
