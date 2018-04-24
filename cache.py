@@ -3,6 +3,7 @@
 import sqlite3
 import time
 from datetime import datetime, timedelta, tzinfo
+from os import path, makedirs
 
 try:
     import _pickle as cpickle
@@ -72,6 +73,11 @@ class Cache(object):
 
     def __init__(self, name=None):
         self.connection = None
+        try:
+            makedirs(path.dirname(name))
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                logger.debug(e.message)
         if name:
             self._open(name)
 
