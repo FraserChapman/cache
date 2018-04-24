@@ -78,12 +78,13 @@ class Cache(object):
             makedirs(path.dirname(name))
         except OSError as e:
             if e.errno != errno.EEXIST:
-                logger.debug(e.message)
+                print(e.message)
+                return
         if name:
             self._open(name)
 
     def get(self, uri):
-        # type: (str) -> Union[None, dict]
+        # type: (str) -> Union[None, sqlite.Row]
         """Retrieve a partial entry from the cache"""
         query = ("select blob, last_modified, etag, immutable, "
                  "case"
@@ -124,6 +125,7 @@ class Cache(object):
         self._execute(query, values)
 
     def touch(self, uri, headers):
+        # type (str, dict) -> None
         """Updates the meta data on an entry in the cache"""
         directives = self._parse_cache_control(headers.get("cache-control"))
         query = "UPDATE data SET http_date=?, age=?, expires=?, last_modified=?, max_age=? WHERE uri=?"
@@ -137,6 +139,7 @@ class Cache(object):
         self._execute(query, values)
 
     def delete(self, uri):
+        # type (str) -> None
         """Remove an entry from the cache via uri"""
         query = "DELETE FROM data WHERE uri=?"
         return self._execute(query, (uri,))
@@ -183,7 +186,6 @@ class Cache(object):
                 return self.connection.execute(query, values)
         except (sqlite3.IntegrityError, sqlite3.OperationalError) as e:
             print(e.message)
-            return
 
     def _open(self, name):
         # type: (str) -> None
