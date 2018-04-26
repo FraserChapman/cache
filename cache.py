@@ -13,7 +13,7 @@ except ImportError:
 
 
 HTTPDATE_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
-
+DEFAULT_MAX_AGE = 60 * 60 * 24 * 365  # 1 year
 
 def httpdate_to_datetime(input_date):
     # type (str) -> Union[None, datetime]
@@ -86,15 +86,15 @@ class Cache(object):
     def get(self, uri):
         # type: (str) -> Union[None, sqlite.Row]
         """Retrieve a partial entry from the cache"""
-        query = ("select blob, last_modified, etag, immutable, "
-                 "case"
-                 "  when max_age then max(age, max_age)"
-                 "  else case"
-                 "      when expires then expires - http_date"
-                 "      else cast((datetime('now') - last_modified) / 10 as int)"
-                 "  end "
-                 "end >= strftime('%s', datetime('now')) - strftime('%s', http_date) as fresh "
-                 "from data where uri=?")
+        query = ("SELECT blob, last_modified, etag, immutable, "
+                 "CASE"
+                 "  WHEN max_age THEN max(age, max_age)"
+                 "  ELSE CASE"
+                 "      WHEN expires THEN expires - http_date"
+                 "      ELSE cast((datetime('now') - last_modified) / 10 as int)"
+                 "  END "
+                 "END >= strftime('%s', datetime('now')) - strftime('%s', http_date) AS fresh "
+                 "FROM data WHERE uri=?")
         result = self._execute(query, (uri,))
         return None if result is None else result.fetchone()
 
@@ -104,7 +104,7 @@ class Cache(object):
         if headers is None:
             headers = {
                 "date": datetime_to_httpdate(datetime.now(GMT())),
-                "cache-control": "immutable, max-age=31556926"  # 1 year
+                "cache-control": "immutable, max-age={}".format(DEFAULT_MAX_AGE)
             }
         directives = self._parse_cache_control(headers.get("cache-control"))
         if "no-store" in directives:
@@ -212,7 +212,7 @@ class Cache(object):
 
     def _create_table(self):
         # type: () -> None
-        data = ("CREATE TABLE IF NOT EXISTS data ("
+        query = ("CREATE TABLE IF NOT EXISTS data ("
                 "uri TEXT PRIMARY KEY NOT NULL,"
                 "blob BLOB NOT NULL,"
                 "http_date TIMESTAMP NOT NULL,"
@@ -223,7 +223,7 @@ class Cache(object):
                 "max_age INTEGER,"
                 "immutable INTEGER DEFAULT 0"
                 ")")
-        self._execute(data)
+        self._execute(query)
 
     def __enter__(self):
         return self
