@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""HTTP File cache"""
+
+__author__ = "fraser"
+
 import sqlite3
 import time
 import errno
@@ -16,7 +20,7 @@ HTTPDATE_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
 DEFAULT_MAX_AGE = 60 * 60 * 24 * 365  # 1 year
 
 def httpdate_to_datetime(input_date):
-    # type (str) -> Union[None, datetime]
+    # type: (str) -> Union[None, datetime]
     if input_date is None:
         return None
     try:
@@ -28,7 +32,7 @@ def httpdate_to_datetime(input_date):
 
 
 def datetime_to_httpdate(input_date):
-    # type (datetime) -> Union[None, str]
+    # type: (datetime) -> Union[None, str]
     if input_date is None:
         return None
     try:
@@ -125,7 +129,7 @@ class Cache(object):
         self._execute(query, values)
 
     def touch(self, uri, headers):
-        # type (str, dict) -> None
+        # type: (str, dict) -> None
         """Updates the meta data on an entry in the cache"""
         directives = self._parse_cache_control(headers.get("cache-control"))
         query = "UPDATE data SET http_date=?, age=?, expires=?, last_modified=?, max_age=? WHERE uri=?"
@@ -139,13 +143,13 @@ class Cache(object):
         self._execute(query, values)
 
     def delete(self, uri):
-        # type (str) -> None
+        # type: (str) -> None
         """Remove an entry from the cache via uri"""
         query = "DELETE FROM data WHERE uri=?"
         return self._execute(query, (uri,))
 
     def domain(self, domain, limit=25):
-        # type (str, int) -> list
+        # type: (str, int) -> list
         """Get items where uri like %domain%"""
         query = "select * from data where uri like ? order by http_date limit ?"
         cursor = self._execute(query, ('%{}%'.format(domain), limit))
