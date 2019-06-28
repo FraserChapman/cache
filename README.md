@@ -6,11 +6,14 @@ Simple Python HTTP Cache using sqlite3
 * Calculates lifetime, freshness as virtual columns
 * Obeys cache control directives, immutable, no-store, etc
 * Supports etag, last_modified, etc for validation 
+* Can be used as a generic key/blob data store when used without directives
 
-Primarily designed for use with Kodi plugins but generic enough for most 
+Originally designed for use with Kodi plugins but generic enough for most 
 purposes.
 
-Can be used as a generic key/blob data store when used without directives.
+For use in Kodi you are probably better served using the script.module.cache which 
+is based on this script: https://github.com/FraserChapman/script.module.cache
+
 
 https://docs.python.org/2/library/sqlite3.html
 
