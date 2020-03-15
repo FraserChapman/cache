@@ -41,6 +41,17 @@ def datetime_to_httpdate(input_date):
         return None
 
 
+def conditional_headers(row):
+    # type: (sqlite3.Row) -> dict
+    """Creates conditional request header dict based on etag and last_modified"""
+    headers = {}
+    if row["etag"] is not None:
+        headers["If-None-Match"] = row["etag"]
+    if row["last_modified"] is not None:
+        headers["If-Modified-Since"] = datetime_to_httpdate(row["last_modified"])
+    return headers
+
+
 class GMT(tzinfo):
     """GMT Time Zone"""
 
