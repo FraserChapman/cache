@@ -52,6 +52,58 @@ def conditional_headers(row):
     return headers
 
 
+class Store(object):
+    """
+    Generic unique string storage helper
+    Saves unique strings in a set that can
+    be retrieved, appended to, removed from or cleared entirely
+    """
+
+    def __init__(self, key, db=None):
+        # type: (str, str) -> None
+        """
+        Creates a new Store object
+        key is the identifier that the set of strings are stored under
+        db is the path to a sqlite3 database (defaults to Cache default)
+        """
+        self.db = db
+        self.key = key
+
+    def retrieve(self):
+        # type: () -> set
+        """Gets set of stored strings"""
+        with Cache(self.db) as c:
+            data = c.get(self.key)
+            return data["blob"] if data else set()
+
+    def _save(self, data):
+        # type: (set) -> None
+        """Saves set of strings"""
+        with Cache(self.db) as c:
+            if isinstance(data, set):
+                c.set(self.key, data)
+
+    def append(self, item):
+        # type: (str) -> None
+        """Add string to the store"""
+        current = self.retrieve()
+        current.add(item)
+        self._save(current)
+
+    def remove(self, item):
+        # type: (str) -> None
+        """Remove string from the store"""
+        current = self.retrieve()
+        current.remove(item)
+        self._save(current)
+
+    def clear(self):
+        # type: () -> None
+        """Clears the store of all data"""
+        with Cache(self.db) as c:
+            c.delete(self.key)
+            
+            
 class GMT(tzinfo):
     """GMT Time Zone"""
 
