@@ -11,8 +11,7 @@ Simple Python HTTP Cache using sqlite3
 Originally designed for use with Kodi plugins but generic enough for most 
 purposes.
 
-For use in Kodi you are probably better served using the script.module.cache which 
-is based on this script: https://github.com/FraserChapman/script.module.cache
+For use in Kodi you are probably better served using the [script.module.cache](https://github.com/FraserChapman/script.module.cache) 
 
 
 https://docs.python.org/2/library/sqlite3.html
