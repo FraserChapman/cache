@@ -210,6 +210,7 @@ class Cache(object):
     def _close(self):
         # type: () -> None
         """Closes any open connection and cursor"""
+        del sqlite3.converters["BLOB"]  
         if self.connection:
             self.connection.cursor().close()
             self.connection.close()
